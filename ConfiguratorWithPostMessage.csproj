@@ -8,13 +8,11 @@
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
   </PropertyGroup>
-<PropertyGroup>
-  <RestoreSources>$(RestoreSources);./nuget;https://api.nuget.org/v3/index.json</RestoreSources>
-</PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.1.1" />
+    <PackageReference Include="TDCI.Configurator.Integration.Core" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

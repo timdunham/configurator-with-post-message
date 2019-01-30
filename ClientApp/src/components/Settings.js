@@ -5,15 +5,19 @@ const iframeStyle = {
   height: "800px"
 };
 
-export class Interactive extends Component {
-  displayName = Interactive.name
+export class Settings extends Component {
+  displayName = Settings.name
   constructor(props) {
     super(props);
     this.state = { 
-      namespace: "AMC",
-      ruleset: "Classic Window"
+      loading: true
     };
-    window.addEventListener("message", this.onMessageHandler.bind(this))
+    fetch('api/Configurator/GetSettings')
+      .then(response => response.json())
+      .then(data=>{
+        this.setState(data)
+        this.setState({loading: false})
+      });
   }
   
   onMessageHandler(event) {
