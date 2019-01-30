@@ -1,59 +1,41 @@
 import React, { Component } from 'react';
 
-const iframeStyle = {
-  width: "100%",
-  height: "800px"
-};
+import {TextBox, CheckBox} from './Controls';
+import SettingsStore from '../storage/Settings';
 
 export class Settings extends Component {
   displayName = Settings.name
   constructor(props) {
     super(props);
-    this.state = { 
-      loading: true
-    };
-    fetch('api/Configurator/GetSettings')
-      .then(response => response.json())
-      .then(data=>{
-        this.setState(data)
-        this.setState({loading: false})
-      });
-  }
-  
-  onMessageHandler(event) {
-    this.setState({url: null, data: JSON.stringify(event.data) })
-    console.log("onmessage", arguments);
-  }
-  onConfigure() {
     
-    fetch('api/Configurator/PrepareForInteractive/' + this.state.namespace + '/' + this.state.ruleset)
-      .then(response => response.json())
-      .then(data => {
-        this.setState({url: data.url, data: null})
-      });
+    this.state = SettingsStore.get();
   }
 
+  onSave(){
+    SettingsStore.set(this.state);
+  }
 
   render() {
     return (
       <div>
-        <h1>Call Configurator</h1>
-        <label>Namespace</label><input type="text" value={this.state.namespace} />
-        <label>Ruleset</label><input type="text" value={this.state.ruleset} />
-        <button onClick={this.onConfigure.bind(this)}>Configure</button>
-        {this.renderConfigurator()}
-        {this.renderData()}
+        <h1>Configurator Settings</h1>
+        <TextBox caption="Base Url" value={this.state.baseUrl} onChange={ (value)=>{ this.setState({baseUrl: value}) } } />
+        <TextBox caption="Tenant Id" value={this.state.tenantId} onChange={(value)=>{this.setState({tenantId: value})} } />
+        <TextBox caption="Redirect Url" value={this.state.redirectUrl} onChange={(value)=>{this.setState({redirectUrl: value})} } />
+        <CheckBox caption="Use API Key" value={this.state.useApiKey} onClick={(value)=>{this.setState({useApiKey: value})} } />
+        {this.renderAuthorization()}
+        <button onClick={this.onSave.bind(this)}>Save</button>
       </div>
     );
   }
-  renderConfigurator() {
-    return (this.state.url)
-      ? <div><iframe style={iframeStyle} src={this.state.url} /></div>
-      : "";
+  renderAuthorization(){
+    return (this.state.useApiKey)
+    ? <TextBox caption="API Key" value={this.state.apiKey} onChange={(value)=>{this.setState({apiKey: value})} } />
+    : <div>
+        <TextBox caption="Key" value={this.state.key} onChange={(value)=>{this.setState({key: value})} } />
+        <TextBox caption="Secret" value={this.state.secret} onChange={(value)=>{this.setState({secret: value})} } />
+       </div>;
   }
-  renderData() {
-    return (this.state.data)
-      ? <div><input style={iframeStyle} type="textblock" value={this.state.data} /> </div>
-      : "";
-  }
+ 
 }
+

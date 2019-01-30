@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import SettingsStore from '../storage/Settings';
+import { TextBox } from './Controls';
+
 
 const iframeStyle = {
   width: "100%",
@@ -9,10 +12,11 @@ export class Interactive extends Component {
   displayName = Interactive.name
   constructor(props) {
     super(props);
-    this.state = { 
+    this.state = Object.assign({ 
       namespace: "AMC",
-      ruleset: "Classic Window"
-    };
+      ruleset: "Classic Window",
+    }, SettingsStore.get());
+
     window.addEventListener("message", this.onMessageHandler.bind(this))
   }
   
@@ -21,12 +25,16 @@ export class Interactive extends Component {
     console.log("onmessage", arguments);
   }
   onConfigure() {
-    
-    fetch('api/Configurator/PrepareForInteractive/' + this.state.namespace + '/' + this.state.ruleset)
-      .then(response => response.json())
-      .then(data => {
-        this.setState({url: data.url, data: null})
-      });
+    fetch('api/Configurator/PrepareForInteractive', {
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      method: 'POST',
+      body: JSON.stringify(this.state)
+    })
+    .then(response=> response.json())
+    .then(data=>{
+      this.setState({url: data.url, data: null})
+    });    
+  
   }
 
 
@@ -34,8 +42,8 @@ export class Interactive extends Component {
     return (
       <div>
         <h1>Call Configurator</h1>
-        <label>Namespace</label><input type="text" value={this.state.namespace} />
-        <label>Ruleset</label><input type="text" value={this.state.ruleset} />
+        <TextBox caption="Namespace" value={this.state.namespace} onChange={value=>this.setState({ namespace: value} )} />
+        <TextBox caption="Ruleset" value={this.state.ruleset} onChange={value=>this.setState({ ruleset: value} )} />
         <button onClick={this.onConfigure.bind(this)}>Configure</button>
         {this.renderConfigurator()}
         {this.renderData()}
