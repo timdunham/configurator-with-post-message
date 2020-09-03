@@ -44,7 +44,10 @@ namespace ConfiguratorWithPostMessage.Controllers
             ip.PartNumber = settings.Ruleset; 
             ip.Profile = "Default";
 
-            var result = hs.PrepareForInteractiveConfiguration(ip, "", settings.RedirectUrl);
+            hs.SetInProgressInputParameters(ip);
+            var result = hs.GetInteractiveUrl(ip.HeaderId, ip.DetailId, "", settings.RedirectUrl);
+            //var result = hs.PrepareForInteractiveConfiguration(ip, "", settings.RedirectUrl);
+
             return new InteractiveUrl() { Url = result };
         }
 

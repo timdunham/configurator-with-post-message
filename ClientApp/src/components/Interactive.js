@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SettingsStore from '../storage/Settings';
-import { TextBox } from './Controls';
+import { TextBox, CheckBox } from './Controls';
 
 
 const iframeStyle = {
@@ -15,6 +15,7 @@ export class Interactive extends Component {
     this.state = Object.assign({ 
       namespace: "AMC",
       ruleset: "Classic Window",
+      usePopup: false
     }, SettingsStore.get());
 
     window.addEventListener("message", this.onMessageHandler.bind(this))
@@ -32,7 +33,14 @@ export class Interactive extends Component {
     })
     .then(response=> response.json())
     .then(data=>{
-      this.setState({url: data.url, data: null})
+      var configuratorWindow = window;
+      if (this.state.usePopup)
+        configuratorWindow = window.open(data.url);
+      else
+        this.setState({url: data.url, data: null});
+
+      configuratorWindow.addEventListener("message", this.onMessageHandler.bind(this))
+      
     });    
   
   }
@@ -44,6 +52,7 @@ export class Interactive extends Component {
         <h1>Call Configurator</h1>
         <TextBox caption="Namespace" value={this.state.namespace} onChange={value=>this.setState({ namespace: value} )} />
         <TextBox caption="Ruleset" value={this.state.ruleset} onChange={value=>this.setState({ ruleset: value} )} />
+        <CheckBox caption="Use Popup" value={this.state.usePopup} onClick={value=>this.setState({ usePopup: value} )} />
         <button onClick={this.onConfigure.bind(this)}>Configure</button>
         {this.renderConfigurator()}
         {this.renderData()}
@@ -57,7 +66,7 @@ export class Interactive extends Component {
   }
   renderData() {
     return (this.state.data)
-      ? <div><input style={iframeStyle} type="textblock" value={this.state.data} /> </div>
+      ? <div><input style={iframeStyle} type="textblock" readOnly value={this.state.data} /> </div>
       : "";
   }
 }
